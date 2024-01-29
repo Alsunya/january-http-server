@@ -29,14 +29,13 @@ public class Dispatcher {
 
     public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
         LOGGER.info("Выполняется запрос по URI: {}", httpRequest.getUri());
-        if (!router.containsKey(httpRequest.getUri())) {
         if (!router.containsKey(httpRequest.getRoute())) {
             unknownRequestProcessor.execute(httpRequest, output);
             LOGGER.error("Неизвестный URI");
             return;
         }
         router.get(httpRequest.getRoute()).execute(httpRequest, output);
-        RequestProcessor requestProcessor = router.get(httpRequest.getUri());
+        RequestProcessor requestProcessor = router.get(httpRequest.getRoute());
         LOGGER.info("Выполняется запрос: {}", requestProcessor.getClass().getSimpleName());
         requestProcessor.execute(httpRequest, output);
         LOGGER.info("Запрос успешно выполнен");

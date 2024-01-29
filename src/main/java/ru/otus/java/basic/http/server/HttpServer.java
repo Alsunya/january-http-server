@@ -36,10 +36,14 @@ public class HttpServer {
         }
     }
     private void connect(ServerSocket serverSocket){
-        try{
-            Socket socket = serverSocket.accept();
-            executorService.execute(() -> handleClient(socket));
-        } catch (IOException e) {
+        try (Socket socket = serverSocket.accept()) {
+            byte[] buffer = new byte[8192];
+            int n = socket.getInputStream().read(buffer);
+            if (n > 0) {
+                String rawRequest = new String(buffer, 0, n);
+                HttpRequest httpRequest = new HttpRequest(rawRequest);
+                dispatcher.execute(httpRequest, socket.getOutputStream());
+            }} catch (IOException e) {
             LOGGER.error("Ошибка подключения клиента", e);
         }
     }
