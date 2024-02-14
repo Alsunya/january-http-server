@@ -26,18 +26,21 @@ public class HttpServer {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             LOGGER.info("Сервер запущен...");
             while (true) {
-                try{
-                    Socket socket = serverSocket.accept();
-                    executorService.execute(() -> handleClient(socket));
-                } catch (IOException e) {
-                    LOGGER.error("Ошибка подключения клиента", e);
-                }
+                connect(serverSocket);
             }
         } catch (Exception e) {
             LOGGER.error("Ошибка запуска сервера", e);
         } finally {
             executorService.shutdown();
             LOGGER.info("Работа сервера завершена");
+        }
+    }
+    private void connect(ServerSocket serverSocket){
+        try{
+            Socket socket = serverSocket.accept();
+            executorService.execute(() -> handleClient(socket));
+        } catch (IOException e) {
+            LOGGER.error("Ошибка подключения клиента", e);
         }
     }
 
