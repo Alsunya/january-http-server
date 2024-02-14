@@ -1,5 +1,7 @@
 package ru.otus.java.basic.http.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.otus.java.basic.http.server.processors.HelloWorldRequestProcessor;
 import ru.otus.java.basic.http.server.processors.OperationAddRequestProcessor;
 import ru.otus.java.basic.http.server.processors.RequestProcessor;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Dispatcher {
+    private static final Logger LOGGER = LogManager.getLogger(Dispatcher.class);
     private Map<String, RequestProcessor> router;
     private RequestProcessor unknownRequestProcessor;
 
@@ -22,10 +25,15 @@ public class Dispatcher {
     }
 
     public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
+        LOGGER.info("Выполняется запрос по URI: {}", httpRequest.getUri());
         if (!router.containsKey(httpRequest.getUri())) {
             unknownRequestProcessor.execute(httpRequest, output);
+            LOGGER.error("Неизвестный URI");
             return;
         }
-        router.get(httpRequest.getUri()).execute(httpRequest, output);
+        RequestProcessor requestProcessor = router.get(httpRequest.getUri());
+        LOGGER.info("Выполняется запрос: {}", requestProcessor.getClass().getSimpleName());
+        requestProcessor.execute(httpRequest, output);
+        LOGGER.info("Запрос успешно выполнен");
     }
 }
