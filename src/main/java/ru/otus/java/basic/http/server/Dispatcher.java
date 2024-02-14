@@ -6,6 +6,7 @@ import ru.otus.java.basic.http.server.processors.HelloWorldRequestProcessor;
 import ru.otus.java.basic.http.server.processors.OperationAddRequestProcessor;
 import ru.otus.java.basic.http.server.processors.RequestProcessor;
 import ru.otus.java.basic.http.server.processors.UnknownRequestProcessor;
+import ru.otus.java.basic.http.server.processors.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,19 +20,22 @@ public class Dispatcher {
 
     public Dispatcher() {
         this.router = new HashMap<>();
-        this.router.put("/add", new OperationAddRequestProcessor());         // /GET /add => OperationAddRequestProcessor
-        this.router.put("/hello_world", new HelloWorldRequestProcessor());   // /GET /hello_world => HelloWorldRequestProcessor
+        this.router.put("GET /add", new OperationAddRequestProcessor());
+        this.router.put("GET /hello_world", new HelloWorldRequestProcessor());
+        this.router.put("POST /body", new PostBodyDemoRequestProcessor());
+        this.router.put("GET /json", new JsonRequestProcessor());
         this.unknownRequestProcessor = new UnknownRequestProcessor();
     }
 
     public void execute(HttpRequest httpRequest, OutputStream output) throws IOException {
         LOGGER.info("Выполняется запрос по URI: {}", httpRequest.getUri());
-        if (!router.containsKey(httpRequest.getUri())) {
+        if (!router.containsKey(httpRequest.getRoute())) {
             unknownRequestProcessor.execute(httpRequest, output);
             LOGGER.error("Неизвестный URI");
             return;
         }
-        RequestProcessor requestProcessor = router.get(httpRequest.getUri());
+        router.get(httpRequest.getRoute()).execute(httpRequest, output);
+        RequestProcessor requestProcessor = router.get(httpRequest.getRoute());
         LOGGER.info("Выполняется запрос: {}", requestProcessor.getClass().getSimpleName());
         requestProcessor.execute(httpRequest, output);
         LOGGER.info("Запрос успешно выполнен");
