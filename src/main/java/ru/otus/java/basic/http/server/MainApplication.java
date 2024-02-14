@@ -4,9 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MainApplication {
-    // Домашнее задание:
-    // - Добавить логирование
-    // - Добавить обработку запросов в параллельных потоках
     private static final Logger LOGGER = LogManager.getLogger(MainApplication.class);
     public static void main(String[] args) {
         HttpServer server = new HttpServer(Integer.parseInt((String)System.getProperties().getOrDefault("port", "8189")));
